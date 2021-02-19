@@ -6,7 +6,17 @@ import (
 	"net/http"
 )
 
+// Article is ...
+type Article struct {
+	Title   string `json:"Title"`
+	Desc    string `json:"desc"`
+	Content string `json:"content`
+}
+
+var Articles []Article
+
 func main() {
+
 	handleRequests()
 }
 
