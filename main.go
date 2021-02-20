@@ -38,6 +38,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/articles", returnAllArticles)
 
 	myRouter.HandleFunc("/article", createNewArticle).Methods("POST")
+	myRouter.HandleFunc("/article/{id}", deleteArticle).Methods("DELETE")
 	myRouter.HandleFunc("/article/{id}", returnSingleArticle)
 
 	log.Fatal(http.ListenAndServe(":8000", myRouter))
@@ -78,4 +79,15 @@ func createNewArticle(w http.ResponseWriter, r *http.Request) {
 	Articles = append(Articles, article)
 
 	json.NewEncoder(w).Encode(article)
+}
+
+func deleteArticle(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	for index, article := range Articles {
+		if article.ID == id {
+			Articles = append(Articles[:index], Articles[index+1:]...)
+		}
+	}
 }
