@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -34,24 +35,29 @@ func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
 
 	myRouter.HandleFunc("/", homePage)
-	myRouter.HandleFunc("/all", returnAllArticles)
+	myRouter.HandleFunc("/articles", returnAllArticles)
 
+	myRouter.HandleFunc("/article", createNewArticle).Methods("POST")
 	myRouter.HandleFunc("/article/{id}", returnSingleArticle)
 
 	log.Fatal(http.ListenAndServe(":8000", myRouter))
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the HomePage!")
 	fmt.Println("Endpoint Hit: homePage")
+
+	fmt.Fprintf(w, "Welcome to the HomePage!")
 }
 
 func returnAllArticles(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: returnAllArticles")
+
 	json.NewEncoder(w).Encode(Articles)
 }
 
 func returnSingleArticle(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: returnSingleArticle")
+
 	vars := mux.Vars(r)
 	key := vars["id"]
 
@@ -60,4 +66,16 @@ func returnSingleArticle(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(article)
 		}
 	}
+}
+
+func createNewArticle(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: createNewArticle")
+
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var article Article
+	json.Unmarshal(reqBody, &article)
+
+	Articles = append(Articles, article)
+
+	json.NewEncoder(w).Encode(article)
 }
